@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+env:
+  AQUA_LOG_COLOR: always
 jobs:
   prepare:
     runs-on: ubuntu-24.04
@@ -32,9 +34,6 @@ jobs:
     needs: prepare
     permissions: {}
     timeout-minutes: 10
-    env:
-      AQUA_LOG_LEVEL: debug
-      AQUA_LOG_COLOR: always
     steps:
       - uses: actions/checkout@71cf2267d89c5cb81562390fa70a37fa40b1305e # v6-beta
         with:
@@ -54,6 +53,13 @@ jobs:
 
       - name: Set $PATH
         run: echo "$HOME/.local/share/aquaproj-aqua/bin" >> "$GITHUB_PATH"
-      # aqua and cosign were installed without accessing GitHub
+      # aqua, aqua-proxy, and cosign were installed without accessing GitHub Releases
       - run: aqua version
       - run: cosign version
+
+      # tfcmt was installed while cosign, slsa-verifier, and gh have already been installed
+      - name: Install tools
+        run: aqua i
+        working-directory: foo
+      - run: tfcmt -v
+        working-directory: foo
